@@ -12,10 +12,7 @@ namespace CalculatorWPF.ViewModels
 {
     public abstract class BaseViewModel : INotifyPropertyChanged
     {
-        //public event NotifyCollectionChangedEventHandler? CollectionChanged;
-
         public event PropertyChangedEventHandler? PropertyChanged;
-
 
         /// <summary>
         /// Can be called as "OnPropertyChanged()" instead of "OnPropertyChanged([propertyName])"

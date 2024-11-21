@@ -23,3 +23,4 @@ C:\Users\Joar\source\repos\CalculatorWPF\CalculatorWPF\obj\Debug\net8.0-windows\
 C:\Users\Joar\source\repos\CalculatorWPF\CalculatorWPF\obj\Debug\net8.0-windows\ref\CalculatorWPF.dll
 C:\Users\Joar\source\repos\CalculatorWPF\CalculatorWPF\obj\Debug\net8.0-windows\App.baml
 C:\Users\Joar\source\repos\CalculatorWPF\CalculatorWPF\obj\Debug\net8.0-windows\ResourceDictionaries\ButtonStyles.baml
+C:\Users\Joar\source\repos\CalculatorWPF\CalculatorWPF\obj\Debug\net8.0-windows\CalculatorWPF.sourcelink.json

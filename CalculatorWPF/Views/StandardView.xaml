@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:CalculatorWPF.Views"
              xmlns:viewModels="clr-namespace:CalculatorWPF.ViewModels"
              mc:Ignorable="d" 
-             d:DesignHeight="515" d:DesignWidth="330">
+             d:DesignHeight="510" d:DesignWidth="330">
 
     <UserControl.DataContext>
         <viewModels:StandardViewModel/>
@@ -15,6 +15,7 @@
     
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition x:Name="ArithmeticRow" Height="50"/>
             <RowDefinition x:Name="SumRow"/>
             <RowDefinition x:Name="MemoryRow" Height="35"/>
             <RowDefinition/>
@@ -25,15 +26,20 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <!-- Sum row -->
+        <!-- Arithmetic {Binding DisplayOperation} row -->
         <Grid Grid.Row="0">
-            <TextBlock Text="{Binding DisplayContent}" FontSize="{Binding DisplayFontSize}" FontWeight="SemiBold"
+            <TextBlock Text="{Binding DisplayOperation}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0" FontSize="14" />
+        </Grid>
+
+        <!-- Sum row -->
+        <Grid Grid.Row="1">
+            <TextBlock Text="{Binding DisplayResult}" FontSize="{Binding DisplayFontSize}" FontWeight="SemiBold"
                        VerticalAlignment="Center" HorizontalAlignment="Right"
                        Padding="0,0,10,20" />
         </Grid>
 
         <!-- Memory row -->
-        <Grid Grid.Row="1" Margin="3,0,3,0">
+        <Grid Grid.Row="2" Margin="3,0,3,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -52,7 +58,7 @@
         </Grid>
 
         <!-- Tool row 1 -->
-        <Grid Grid.Row="2" Margin="3,0,3,0">
+        <Grid Grid.Row="3" Margin="3,0,3,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -62,12 +68,12 @@
 
             <Button Style="{StaticResource ToolButtonStyle}" Grid.Column="0" Content="%" x:Name="ModoluButton"/>
             <Button Style="{StaticResource ToolButtonStyle}" Grid.Column="1" Content="CE" x:Name="ClearEverythingButton"/>
-            <Button Style="{StaticResource ToolButtonStyle}" Grid.Column="2" Content="C" x:Name="ClearButton"/>
+            <Button Command="{Binding ClearCommand}" Style="{StaticResource ToolButtonStyle}" Grid.Column="2" Content="C" x:Name="ClearButton"/>
             <Button Command="{Binding BackspaceCommand}" Style="{StaticResource ToolButtonStyle}" Grid.Column="3" Content="Back" x:Name="BackspaceButton"/>
         </Grid>
 
         <!-- Tool row 2 -->
-        <Grid Grid.Row="3" Margin="3,0,3,0">
+        <Grid Grid.Row="4" Margin="3,0,3,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -78,12 +84,12 @@
             <Button Style="{StaticResource ToolButtonStyle}" Grid.Column="0" Content="1/x" x:Name="MultiplicativeInverseButton"/>
             <Button Style="{StaticResource ToolButtonStyle}" Grid.Column="1" Content="x^2" x:Name="ExponentialButton"/>
             <Button Style="{StaticResource ToolButtonStyle}" Grid.Column="2" Content="2-/x" x:Name="SquareRootButton"/>
-            <Button Style="{StaticResource ToolButtonStyle}" Grid.Column="3" Content="/" x:Name="DivisionButton"/>
+            <Button Command="{Binding SetOperatorCommand}" CommandParameter="/" Style="{StaticResource ToolButtonStyle}" Grid.Column="3" Content="/" x:Name="DivisionButton"/>
 
         </Grid>
 
         <!-- numpad row 1 -->
-        <Grid Grid.Row="4" Margin="3,0,3,0">
+        <Grid Grid.Row="5" Margin="3,0,3,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -94,11 +100,11 @@
             <Button Command="{Binding NumberCommand}" CommandParameter="7" Style="{StaticResource NumPadButtonStyle}" Grid.Column="0" Content="7" x:Name="NumPad7Button"/>
             <Button Command="{Binding NumberCommand}" CommandParameter="8" Style="{StaticResource NumPadButtonStyle}" Grid.Column="1" Content="8" x:Name="NumPad8Button"/>
             <Button Command="{Binding NumberCommand}" CommandParameter="9" Style="{StaticResource NumPadButtonStyle}" Grid.Column="2" Content="9" x:Name="NumPad9Button"/>
-            <Button Style="{StaticResource ToolButtonStyle}" Grid.Column="3" Content="*" x:Name="MultiplicationButton"/>
+            <Button Command="{Binding SetOperatorCommand}" CommandParameter="*" Style="{StaticResource ToolButtonStyle}" Grid.Column="3" Content="*" x:Name="MultiplicationButton"/>
         </Grid>
 
         <!-- numpad row 2 -->
-        <Grid Grid.Row="5" Margin="3,0,3,0">
+        <Grid Grid.Row="6" Margin="3,0,3,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -109,11 +115,11 @@
             <Button Command="{Binding NumberCommand}" CommandParameter="4" Style="{StaticResource NumPadButtonStyle}" Grid.Column="0" Content="4" x:Name="NumPad4Button"/>
             <Button Command="{Binding NumberCommand}" CommandParameter="5" Style="{StaticResource NumPadButtonStyle}" Grid.Column="1" Content="5" x:Name="NumPad5Button"/>
             <Button Command="{Binding NumberCommand}" CommandParameter="6" Style="{StaticResource NumPadButtonStyle}" Grid.Column="2" Content="6" x:Name="NumPad6Button"/>
-            <Button Style="{StaticResource ToolButtonStyle}" Grid.Column="3" Content="-" x:Name="SubtractionButton"/>
+            <Button Command="{Binding SetOperatorCommand}" CommandParameter="-" Style="{StaticResource ToolButtonStyle}" Grid.Column="3" Content="-" x:Name="SubtractionButton"/>
         </Grid>
 
         <!-- numpad row 3 -->
-        <Grid Grid.Row="6" Margin="3,0,3,0">
+        <Grid Grid.Row="7" Margin="3,0,3,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -124,11 +130,11 @@
             <Button Command="{Binding NumberCommand}" CommandParameter="1" Style="{StaticResource NumPadButtonStyle}" Grid.Column="0" Content="1" x:Name="NumPad1Button"/>
             <Button Command="{Binding NumberCommand}" CommandParameter="2" Style="{StaticResource NumPadButtonStyle}" Grid.Column="1" Content="2" x:Name="NumPad2Button"/>
             <Button Command="{Binding NumberCommand}" CommandParameter="3" Style="{StaticResource NumPadButtonStyle}" Grid.Column="2" Content="3" x:Name="NumPad3Button"/>
-            <Button Style="{StaticResource ToolButtonStyle}" Grid.Column="3" Content="+" x:Name="AdditionButton"/>
+            <Button Command="{Binding SetOperatorCommand}" CommandParameter="+" Style="{StaticResource ToolButtonStyle}" Grid.Column="3" Content="+" x:Name="AdditionButton"/>
         </Grid>
 
         <!-- numpad row 4 -->
-        <Grid Grid.Row="7" Margin="3,0,3,3">
+        <Grid Grid.Row="8" Margin="3,0,3,3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -136,10 +142,10 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <Button Style="{StaticResource NumPadButtonStyle}" Grid.Column="0" Content="+/-" x:Name="TogglePositiveButton" />
+            <Button Command="{Binding PosNegToggleCommand}" Style="{StaticResource NumPadButtonStyle}" Grid.Column="0" Content="+/-" x:Name="TogglePositiveButton" />
             <Button Command="{Binding NumberCommand}" CommandParameter="0"  Style="{StaticResource NumPadButtonStyle}" Grid.Column="1" Content="0" x:Name="NumPad0Button" />
-            <Button Style="{StaticResource NumPadButtonStyle}" Grid.Column="2" Content="." x:Name="CommaButton" />
-            <Button Style="{StaticResource ToolButtonStyle}" Grid.Column="3" Content="="  x:Name="EqualsButton"/>
+            <Button Command="{Binding CommaCommand}" Style="{StaticResource NumPadButtonStyle}" Grid.Column="2" Content="." x:Name="CommaButton" />
+            <Button Command="{Binding EqualsCommand}" Style="{StaticResource ToolButtonStyle}" Grid.Column="3" Content="="  x:Name="EqualsButton"/>
         </Grid>
     </Grid>
 

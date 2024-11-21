@@ -6,194 +6,129 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CalculatorWPF.Models;
 
 namespace CalculatorWPF.ViewModels
 {
-    public class StandardViewModel : BaseViewModel
+    public class StandardViewModel : ArithmeticViewModel
     {
-        private const int _displayMaxChar = 21;
-        private const int _initialFontSize = 47;
-        private const string _initialDisplayContent = "0";
-        private string _displayContent;
-        private bool _initialDisplayState = true;
-        private int _displayFontSize = _initialFontSize;
-        private decimal _rawValue = 0; 
-
-        public ICommand NumberCommand { get; private set; }
-        public ICommand BackspaceCommand { get; private set; }
-        
-        public int DisplayFontSize
-        {
-            get => _displayFontSize;
-            set
-            {
-                _displayFontSize = value;
-                OnPropertyChanged();
-                Debug.WriteLine("DisplayFontSize set");
-            }
-        }
-        public string DisplayContent
-        {
-            get => _displayContent = FormatDisplay(_rawValue);
-            set
-            {
-                _displayContent = value;
-                OnPropertyChanged();
-                Debug.WriteLine("DisplayContent set");
-            }
-        }
+        private readonly StandardCalculatorModel _calculatorModel;
 
         public StandardViewModel()
         {
+            _calculatorModel = new StandardCalculatorModel();
+            SetMaxChar();
+            InitICommands();          
+        }
+
+        protected override void SetMaxChar()
+        {
+            _displayMaxChar = 21;
+        }
+
+        protected override void InitICommands()
+        {
             NumberCommand = new RelayCommand(ExecuteNumberCommand);
             BackspaceCommand = new RelayCommand(ExecuteBackspaceCommand);
-            DisplayContent = _initialDisplayContent;
+            EqualsCommand = new RelayCommand(ExecuteEqualsCommand);
+            ClearCommand = new RelayCommand(ExecuteClearCommand);
+            SetOperatorCommand = new RelayCommand(ExecuteSetOperatorCommand);
         }
 
-        private void InitICommands()
+        protected override void ExecuteClearCommand(object parameter)
         {
-            NumberCommand = new RelayCommand(ExecuteNumberCommand);
+            ResetDisplay();
+            _calculatorModel.Clear();
         }
 
-        private void ExecuteNumberCommand(object parameter)
+        protected override void ExecuteEqualsCommand(object parameter)
         {
-            if (_initialDisplayState)
+            if (decimal.TryParse(DisplayResult.Replace(" ", ""), out decimal currentValue))
             {
-                DisplayContent = string.Empty;
-                _rawValue = 0;
-                _initialDisplayState = false;
+                _calculatorModel.EnterNumber(currentValue);
+                _calculatorModel.Calculate();
+                DisplayOperation = ($"{_calculatorModel.Operand1.ToString()} {_calculatorModel.CurrentOperator} {_calculatorModel.Operand2} =");
+                DisplayResult = _calculatorModel.Result.ToString();
             }
 
-            if (_displayContent.Length < _displayMaxChar)
-            {
-                if (parameter is string number)
-                {
-                    var newDisplayValue = _displayContent + number;
+        }
 
-                    if (decimal.TryParse(newDisplayValue, out var result))
-                    {
-                        _rawValue = result;
-                        DisplayContent = FormatDisplay(_rawValue);
-                    }
-                    //DisplayContent += number;
+        protected override void ExecuteSetOperatorCommand(object parameter)
+        {
+            if (decimal.TryParse(DisplayResult.Replace(" ", ""), out decimal currentValue))
+            {
+                _calculatorModel.Clear();
+                _calculatorModel.EnterNumber(currentValue);
+                DisplayOperation = DisplayResult + " " + parameter.ToString() + " ";
+                _calculatorModel.SetOperator(parameter.ToString());
+                _hasStoredOperand = true;
+            }
+        }
+
+        protected override void ExecuteNumberCommand(object parameter)
+        {
+
+            if (parameter is string number)
+            {
+                if (_initialDisplayState)
+                {
+                    DisplayResult = string.Empty;
+                    _calculatorModel.Clear();
+                    _initialDisplayState = false;
                 }
 
-                Debug.WriteLine("_displaycontent:" + DisplayContent);
+                if (_hasStoredOperand)
+                {
+                    DisplayResult = string.Empty;
+                    _hasStoredOperand = false;
+                }
+
+                if (_displayResult.Length < _displayMaxChar)
+                {
+                    DisplayResult += number;
+
+                    if (decimal.TryParse(DisplayResult.Replace(" ", ""), out decimal currentValue))
+                    {
+                        _calculatorModel.EnterNumber(currentValue);
+                    }
+
+                    Debug.WriteLine("_displaycontent:" + DisplayResult);
+                }
             }
 
             DisplayContentFontSetter();
         }
 
-        private void ChangeDisplayFontSize(int size)
-        {
-            DisplayFontSize = size;
-        }
-
-        //private void ExecuteBackspaceCommand(object parameter)
-        //{
-        //    if (_displayContent.Length > 1)
-        //    {
-        //        DisplayContent = _displayContent.Substring(0, _displayContent.Length - 1);
-
-        //        Debug.WriteLine("Backspace executed");
-        //    }
-
-        //    if (_displayContent.Length <= 0)
-        //    {
-        //        DisplayContent = _initialDisplayContent;
-        //        _initialDisplayState = true;
-        //    }
-
-        //    DisplayContentFontSetter();
-        //}
+        
 
         private void ExecuteBackspaceCommand(object parameter)
         {
-            // Check if the display is in scientific notation format
-            if (DisplayContent.Contains("E"))
+            if (DisplayResult.Length > 1)
             {
-                // Convert scientific notation back to a regular string representation
-                DisplayContent = _rawValue.ToString("#,##0");
+                DisplayResult = DisplayResult.Substring(0, DisplayResult.Length - 1);
 
-                Debug.WriteLine("Backspace executed contains E, DisplayContent: " + DisplayContent);
-
-            }
-            else if (_displayContent.Length > 1)
-            {
-                Debug.WriteLine("Backspace executed > 1, DisplayContent: " + DisplayContent);
-
-                // Perform the backspace on the display content by trimming the last character
-                _displayContent = _displayContent.Substring(0, _displayContent.Length - 1);
-
-                // Update DisplayContent with the new string
-                DisplayContent = _displayContent; // This will update the ViewModel
-
-                // Parse the updated display content back to _rawValue to keep calculations accurate
-                if (decimal.TryParse(_displayContent.Replace(" ", ""), out var newValue))
+                if (decimal.TryParse(DisplayResult.Replace(" ", ""), out decimal parsedValue))
                 {
-                    _rawValue = newValue;
+                    _calculatorModel.EnterNumber(parsedValue);
                 }
+
+                Debug.WriteLine("Backspace executed - normal, DisplayResult: " + DisplayResult);
             }
             else
             {
-                Debug.WriteLine("Backspace executed initial, DisplayContent: " + DisplayContent);
-
-                // Reset to initial state if display length is 1 or less
-                DisplayContent = _initialDisplayContent;
+                // If only 1 character is left (or nothing), reset to the initial state
+                DisplayResult = _initialSum;
                 _initialDisplayState = true;
-                _rawValue = 0;
+                _calculatorModel.Clear(); // Clear any stored values or calculations
+
+                Debug.WriteLine("Backspace executed - reset, DisplayResult: " + DisplayResult);
             }
 
+            // Optionally adjust font size based on the new display content
             DisplayContentFontSetter();
-            //Debug.WriteLine("Backspace executed, DisplayContent: " + DisplayContent);
-        }
+        }   
 
 
 
-        private string FormatDisplay(decimal value)
-        {
-            string display = "";
-
-            if (value > 1e18m || value < 1e-18m && value != 0)
-            {
-                display = value.ToString("0.###E+0");
-            }
-            else
-            {
-                display = Math.Abs(value) < 1000 ? value.ToString() : value.ToString("#,##0");
-            }
-            return display;
-        }
-
-
-
-
-        private void DisplayContentFontSetter()
-        {
-            if (_displayContent.Length > 11)
-            {
-                switch (_displayContent.Length)
-                {
-                    case 12:
-                        ChangeDisplayFontSize(_initialFontSize);
-                        break;
-                    case 13:
-                        ChangeDisplayFontSize(38);
-                        break;
-                    case 14:
-                        ChangeDisplayFontSize(36);
-                        break;
-                    case 15:
-                        ChangeDisplayFontSize(34);
-                        break;
-                    case 16:
-                        ChangeDisplayFontSize(32);
-                        break;
-                    case 17:
-                        ChangeDisplayFontSize(30);
-                        break;
-                }
-            }
-        }
     }
 }
